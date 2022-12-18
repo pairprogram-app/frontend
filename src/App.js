@@ -36,7 +36,7 @@ function App() {
     const sharedb = require("sharedb/lib/client");
 
     // Open WebSocket connection to ShareDB server
-    const socket = new ReconnectingWebSocket(DEBUG ? "ws://localhost:8080" : "some url here");
+    const socket = new ReconnectingWebSocket(DEBUG ? "ws://localhost:8080" : "ws://pairprogram-backend.herokuapp.com");
     const connection = new sharedb.Connection(socket);
 
     socket.addEventListener("open", (event) => {
