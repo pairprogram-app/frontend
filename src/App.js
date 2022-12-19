@@ -14,7 +14,8 @@ function App() {
     useRecoilState(connectionAtom);
   const [shareUrl, setShareUrl] = useRecoilState(shareUrlAtom);
   const [editorLanguage, setEditorLanguage] = useRecoilState(editorLanguageAtom)
-  const monaco = useRef(null)
+  const editorRef = useRef(null);
+  const bindingRef = useRef(null)
 
   const textClassName = darkMode ? "text-[#e3e3e3]" : "text-[#232323]";
   const bgClassName = darkMode ? "bg-[#232323]" : "bg-[#e3e3e3]";
@@ -36,7 +37,7 @@ function App() {
     const sharedb = require("sharedb/lib/client");
 
     // Open WebSocket connection to ShareDB server
-    const socket = new ReconnectingWebSocket(DEBUG ? "ws://localhost:8080" : "ws://pairprogram-backend.herokuapp.com");
+    const socket = new ReconnectingWebSocket(DEBUG ? "ws://localhost:8080" : "wss://pairprogram-backend.herokuapp.com");
     const connection = new sharedb.Connection(socket);
 
     socket.addEventListener("open", (event) => {
@@ -52,16 +53,18 @@ function App() {
     const binding = new ShareDBMonaco({
       id: file_path,
       monaco: monaco,
-      uri: monaco.Uri,
       sharePath: "content",
       namespace: docID,
       connection: connection,
       loadingText: "Loading file...",
     });
 
-    // const model = binding.add(editor, {
-    //   langId: language_id,
-    // });
+    editorRef.current = editor
+    bindingRef.current = binding
+
+    binding.add(editor, {
+      langId: language_id
+    });
   };
 
   // this runs once at the beginning to ensure that hash exists in URL
@@ -121,7 +124,10 @@ function App() {
               <label className="mr-5 text-lg font-bold" htmlFor="language">
                 Language:
               </label>
-              <select value={editorLanguage} onChange={(e)=>{setEditorLanguage(e.target.value)}} className="text-black">
+              <select value={editorLanguage} onChange={(e)=>{
+                setEditorLanguage(e.target.value)
+                bindingRef.current.add(editorRef.current, {langId: e.target.value})
+                }} className="text-black">
                 {languages.map((value, i) => {
                   return (
                     <option key={i} value={value}>
@@ -157,6 +163,7 @@ function App() {
           <Editor
             height="100vh"
             width="100"
+            defaultLanguage="javascript"
             language={editorLanguage}
             loading={loadingScreen}
             theme={darkMode ? "vs-dark" : "light"}

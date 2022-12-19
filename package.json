@@ -1,6 +1,7 @@
 {
   "name": "pairprogram.me",
   "version": "0.1.0",
+  "homepage": "https://shreyjoshi.com/pairprogram.me",
   "private": true,
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
