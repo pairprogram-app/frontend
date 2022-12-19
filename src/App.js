@@ -14,7 +14,6 @@ function App() {
     useRecoilState(connectionAtom);
   const [shareUrl, setShareUrl] = useRecoilState(shareUrlAtom);
   const [editorLanguage, setEditorLanguage] = useRecoilState(editorLanguageAtom)
-  const editorRef = useRef(null);
   const bindingRef = useRef(null)
 
   const textClassName = darkMode ? "text-[#e3e3e3]" : "text-[#232323]";
@@ -47,7 +46,7 @@ function App() {
     const docID = getHash();
     const doc = connection.get(docID, file_path);
     doc.fetch(() => {
-      if (doc.type === null) doc.create({ content: "" });
+      if (doc.type === null) doc.create({ content: `// Share this URL to allow others to edit and see your changes in real-time:\n// https://shreyjoshi.com/pairprogram.me/#${docID}` });
     });
 
     const binding = new ShareDBMonaco({
@@ -59,7 +58,6 @@ function App() {
       loadingText: "Loading file...",
     });
 
-    editorRef.current = editor
     bindingRef.current = binding
 
     binding.add(editor, {
@@ -88,6 +86,12 @@ function App() {
       false
     );
   }, []);
+
+  const copyShareUrl = (e) => {
+    navigator.clipboard.writeText(`https://pairprogram.me/#${shareUrl}`)
+    e.target.innerText = "Copied!"
+    setTimeout(() => {e.target.innerText = "Copy"}, 500)
+  }
 
   return (
     <div className="w-screen h-screen">
@@ -126,7 +130,7 @@ function App() {
               </label>
               <select value={editorLanguage} onChange={(e)=>{
                 setEditorLanguage(e.target.value)
-                bindingRef.current.add(editorRef.current, {langId: e.target.value})
+                bindingRef.setLangId(e.target.value)
                 }} className="text-black">
                 {languages.map((value, i) => {
                   return (
@@ -147,15 +151,15 @@ function App() {
                   value={`https://pairprogram.me/#${shareUrl}`}
                   readOnly
                 />
-                <button type="button" className="copy-link-button px-6">
-                  <span className="material-icons">Copy</span>
+                <button type="button" className="copy-link-button px-8">
+                  <span className="material-icons" onClick={copyShareUrl}>Copy</span>
                 </button>
               </div>
             </div>
 
-            <div className="mb-0">
+            {/* <div className="mb-0">
               <h1 className="text-lg font-bold">Active Users:</h1>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -163,11 +167,11 @@ function App() {
           <Editor
             height="100vh"
             width="100"
-            defaultLanguage="javascript"
             language={editorLanguage}
             loading={loadingScreen}
             theme={darkMode ? "vs-dark" : "light"}
             onMount={handleEditorMount}
+            defaultValue="// Built with love by Shrey and Teerth"
           />
         </div>
       </div>
