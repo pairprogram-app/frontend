@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import Editor from "@monaco-editor/react";
 import ShareDBMonaco from "sharedb-monaco";
