@@ -39,9 +39,14 @@ function App() {
   const [editorLanguage, setEditorLanguage] =
     useRecoilState(editorLanguageAtom);
   const bindingRef = useRef(null);
-  const { onCopy, setValue, hasCopied } = useClipboard("https://shreyjoshi.com/pairprogram.me/#"+shareUrl);
+  const shareUrlClipboard = useClipboard("");
+  const { onCopy, setValue, hasCopied } = useClipboard();
 
-  const loadingScreen = <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>Loading Editor...</Text>
+  const loadingScreen = (
+    <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>
+      Loading Editor...
+    </Text>
+  );
 
   const DEBUG = false;
 
@@ -93,11 +98,13 @@ function App() {
     console.log("first hash is ", hash);
     if (hash) {
       setShareUrl(hash);
+      setValue("https://shreyjoshi.com/pairprogram.me/#"+hash);
       console.log("hash valid, setting share URL");
     } else {
       console.log("invalid so making new");
-      setShareUrl(makeHash());
-      setValue(shareUrl)
+      const newHash = makeHash();
+      setShareUrl(newHash);
+      setValue("https://shreyjoshi.com/pairprogram.me/#"+newHash);
     }
 
     window.addEventListener(
@@ -109,36 +116,38 @@ function App() {
     );
   }, []);
 
-  const copyShareUrl = (e) => {
-    navigator.clipboard.writeText(`https://pairprogram.me/#${shareUrl}`);
-    e.target.innerText = "Copied!";
-    setTimeout(() => {
-      e.target.innerText = "Copy";
-    }, 500);
-  };
-
   return (
-      // <Grid templateAreas={`"header header" "nav main" "footer footer"`}
-      <Grid templateAreas={`"header header" "nav main"`}
-      gridTemplateRows={'1fr'}
-  gridTemplateColumns={'300px 1fr'}>
-    <GridItem py={1} bgColor={"#333"} w={"full"} area={`header`}>
-      <Center>
-      <Text mr={0} fontWeight={"normal"} fontSize={"md"} textColor={"#e3e3e3"}>pairprogram.app</Text>
-      </Center>
-    </GridItem>
-        <GridItem py={5} textColor={"#e3e3e3"} bgColor={"#232323"} area={`nav`}>
-          <Box mx={4}>
-            <Box
-              className={`inline-block align-middle rounded-full w-2 h-2 ${
-                connectionStatus ? "bg-green-700" : "bg-red-700"
-              }`}
-            ></Box>
+    <Grid
+      templateAreas={`"header header" "nav main"`}
+      gridTemplateRows={"30px 1fr"}
+      gridTemplateColumns={"300px 1fr"}
+      height={"200px"}
+    >
+      <GridItem py={1} bgColor={"#333"} area={`header`}>
+        <Center>
+          <Text
+            mr={0}
+            fontWeight={"normal"}
+            fontSize={"sm"}
+            textColor={"#e3e3e3"}
+          >
+            pairprogram.app
+          </Text>
+        </Center>
+      </GridItem>
 
-            <Text className="inline-block" ml={3} mb={5} fontSize="sm">
-              <em>{connectionStatus ? "Connected!" : "Connecting..."}</em>
-            </Text>
-            {/* 
+      <GridItem py={5} textColor={"#e3e3e3"} bgColor={"#232323"} area={`nav`}>
+        <Box mx={4}>
+          <Box
+            className={`inline-block align-middle rounded-full w-2 h-2 ${
+              connectionStatus ? "bg-green-700" : "bg-red-700"
+            }`}
+          ></Box>
+
+          <Text className="inline-block" ml={3} mb={5} fontSize="sm">
+            <em>{connectionStatus ? "Connected!" : "Connecting..."}</em>
+          </Text>
+          {/* 
                 <Box display="flex" alignItems="center">
                   <FormLabel
                     htmlFor="dark-mode"
@@ -157,65 +166,62 @@ function App() {
                   />
                 </Box> */}
 
-            <Stack spacing={2}>
-              <Text fontWeight="bold" fontSize="lg">
-                Language:
-              </Text>
-              <Select
-                size="sm"
-                value={editorLanguage}
-                bgColor={"#232323"}
-                onChange={(e) => {
-                  setEditorLanguage(e.target.value);
-                  bindingRef.current.setLangId(e.target.value);
-                }}
-              >
-                {languages.map((value, i) => {
-                  return (
-                    <option key={i} value={value}>
-                      {value}
-                    </option>
-                  );
-                })}
-              </Select>
-            </Stack>
-
-            <Text fontSize="lg" fontWeight="bold" mt={5} mb={2}>
-              Share Link:
+          <Stack spacing={2}>
+            <Text fontWeight="bold" fontSize="lg">
+              Language:
             </Text>
+            <Select
+              size="sm"
+              value={editorLanguage}
+              bgColor={"#232323"}
+              onChange={(e) => {
+                setEditorLanguage(e.target.value);
+                bindingRef.current.setLangId(e.target.value);
+              }}
+            >
+              {languages.map((value, i) => {
+                return (
+                  <option key={i} value={value}>
+                    {value}
+                  </option>
+                );
+              })}
+            </Select>
+          </Stack>
 
-            <Flex mb={2}>
-              <Input
-                fontSize={"xs"}
-                px={2}
-                value={`https://shreyjoshi.com/pairprogram.me/#${shareUrl}`}
-                mr={2}
-              />
-              <Button
-                color={"#232323"}
-                bgColor={"#d3d3d3"}
-                onClick={onCopy}>
-                {hasCopied ? "Copied!" : "Copy"}
-              </Button>
-            </Flex>
-            {/* <div className="mb-0">
+          <Text fontSize="lg" fontWeight="bold" mt={5} mb={2}>
+            Share Link:
+          </Text>
+
+          <Flex mb={2}>
+            <Input
+              fontSize={"xs"}
+              px={2}
+              value={`https://shreyjoshi.com/pairprogram.me/#${shareUrl}`}
+              mr={2}
+            />
+            <Button color={"#232323"} bgColor={"#d3d3d3"} onClick={onCopy}>
+              {hasCopied ? "Copied!" : "Copy"}
+            </Button>
+          </Flex>
+          {/* <div className="mb-0">
               <h1 className="text-lg font-bold">Active Users:</h1>
             </div> */}
-          </Box>
-        </GridItem>
+        </Box>
+      </GridItem>
 
-        <GridItem area={"main"} minWidth={100}>
-          <Editor
-            height="100vh"
-            width="100"
-            language={editorLanguage}
-            loading={loadingScreen}
-            theme={darkMode ? "vs-dark" : "light"}
-            onMount={handleEditorMount}
-            defaultValue="// Built with love by Shrey and Teerth"
-          />
-        </GridItem>
-      </Grid>
+      <GridItem area={"main"} minWidth={100}>
+        <Editor
+          height="100vh"
+          width="100"
+          language={editorLanguage}
+          loading={loadingScreen}
+          theme={darkMode ? "vs-dark" : "light"}
+          onMount={handleEditorMount}
+          defaultValue="// Built with love by Shrey and Teerth"
+        />
+      </GridItem>
+    </Grid>
   );
 }
 
