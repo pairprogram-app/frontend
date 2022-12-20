@@ -1,33 +1,53 @@
-import logo from "./logo.svg";
 import "./App.css";
 import Editor from "@monaco-editor/react";
 import ShareDBMonaco from "sharedb-monaco";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { connectionAtom, darkModeAtom, editorLanguageAtom, shareUrlAtom } from "./components/atoms";
+import {
+  connectionAtom,
+  darkModeAtom,
+  editorLanguageAtom,
+  shareUrlAtom,
+} from "./components/atoms";
 import { useEffect, useRef } from "react";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { getHash, languages, makeHash } from "./components/hash";
+import {
+  Box,
+  Center,
+  Image,
+  Flex,
+  Badge,
+  Text,
+  Switch,
+  FormControl,
+  FormLabel,
+  Stack,
+  Select,
+  useClipboard,
+  Input,
+  Button,
+  Grid,
+  GridItem,
+} from "@chakra-ui/react";
 
 function App() {
   const [darkMode, setDarkMode] = useRecoilState(darkModeAtom);
   const [connectionStatus, setConnectionStatus] =
     useRecoilState(connectionAtom);
   const [shareUrl, setShareUrl] = useRecoilState(shareUrlAtom);
-  const [editorLanguage, setEditorLanguage] = useRecoilState(editorLanguageAtom)
-  const bindingRef = useRef(null)
-
-  const textClassName = darkMode ? "text-[#e3e3e3]" : "text-[#232323]";
-  const bgClassName = darkMode ? "bg-[#232323]" : "bg-[#e3e3e3]";
+  const [editorLanguage, setEditorLanguage] =
+    useRecoilState(editorLanguageAtom);
+  const bindingRef = useRef(null);
+  const shareUrlClipboard = useClipboard("");
+  const { onCopy, setValue, hasCopied } = useClipboard();
 
   const loadingScreen = (
-    <>
-      <div className={"bg-[#1e1e1e] text-white h-full w-full text-xl"}>
-        <span className="">Loading....</span>
-      </div>
-    </>
+    <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>
+      Loading Editor...
+    </Text>
   );
 
-  const DEBUG = false
+  const DEBUG = false;
 
   const file_path = "foo.js";
   const language_id = "javascript";
@@ -36,7 +56,9 @@ function App() {
     const sharedb = require("sharedb/lib/client");
 
     // Open WebSocket connection to ShareDB server
-    const socket = new ReconnectingWebSocket(DEBUG ? "ws://localhost:8080" : "wss://pairprogram-backend.herokuapp.com");
+    const socket = new ReconnectingWebSocket(
+      DEBUG ? "ws://localhost:8080" : "wss://pairprogram-backend.herokuapp.com"
+    );
     const connection = new sharedb.Connection(socket);
 
     socket.addEventListener("open", (event) => {
@@ -46,7 +68,10 @@ function App() {
     const docID = getHash();
     const doc = connection.get(docID, file_path);
     doc.fetch(() => {
-      if (doc.type === null) doc.create({ content: `// Share this URL to allow others to edit and see your changes in real-time:\n// https://shreyjoshi.com/pairprogram.me/#${docID}` });
+      if (doc.type === null)
+        doc.create({
+          content: `// Share this URL to allow others to edit and see your changes in real-time:\n// https://shreyjoshi.com/pairprogram.me/#${docID}`,
+        });
     });
 
     const binding = new ShareDBMonaco({
@@ -58,10 +83,10 @@ function App() {
       loadingText: "Loading file...",
     });
 
-    bindingRef.current = binding
+    bindingRef.current = binding;
 
     binding.add(editor, {
-      langId: language_id
+      langId: language_id,
     });
   };
 
@@ -72,10 +97,13 @@ function App() {
     console.log("first hash is ", hash);
     if (hash) {
       setShareUrl(hash);
+      setValue("https://shreyjoshi.com/pairprogram.me/#"+hash);
       console.log("hash valid, setting share URL");
     } else {
       console.log("invalid so making new");
-      setShareUrl(makeHash());
+      const newHash = makeHash();
+      setShareUrl(newHash);
+      setValue("https://shreyjoshi.com/pairprogram.me/#"+newHash);
     }
 
     window.addEventListener(
@@ -87,95 +115,112 @@ function App() {
     );
   }, []);
 
-  const copyShareUrl = (e) => {
-    navigator.clipboard.writeText(`https://pairprogram.me/#${shareUrl}`)
-    e.target.innerText = "Copied!"
-    setTimeout(() => {e.target.innerText = "Copy"}, 500)
-  }
-
   return (
-    <div className="w-screen h-screen">
-      <div className="grid grid-cols-12">
-        <div className={`col-span-3 py-5 ${bgClassName} ${textClassName}`}>
-          <div className="mx-4">
-            <div className="mb-5">
-              <div className="grid-cols-12">
-                <div
-                  className={`inline-block align-middle rounded-full w-2 h-2 ${
-                    connectionStatus ? "bg-green-700" : "bg-red-700"
-                  }`}
-                ></div>
-                <p className="ml-3 text-sm inline-block">
-                  <em>{connectionStatus ? "Connected!" : "Connecting..."}</em>
-                </p>
-                <h1 className="text-lg font-bold my-2">Dark Mode:</h1>
-                <label className="inline-flex relative items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    defaultChecked={true}
-                    className="sr-only peer"
-                    onClick={() => {
+    <Grid
+      templateAreas={`"header header" "nav main"`}
+      gridTemplateRows={"30px 1fr"}
+      gridTemplateColumns={"300px 1fr"}
+      height={"200px"}
+    >
+      <GridItem py={1} bgColor={"#333"} area={`header`}>
+        <Center>
+          <Text
+            mr={0}
+            fontWeight={"normal"}
+            fontSize={"sm"}
+            textColor={"#e3e3e3"}
+          >
+            pairprogram.app
+          </Text>
+        </Center>
+      </GridItem>
+
+      <GridItem py={5} textColor={"#e3e3e3"} bgColor={"#232323"} area={`nav`}>
+        <Box mx={4}>
+          <Box
+            className={`inline-block align-middle rounded-full w-2 h-2 ${
+              connectionStatus ? "bg-green-700" : "bg-red-700"
+            }`}
+          ></Box>
+
+          <Text className="inline-block" ml={3} mb={5} fontSize="sm">
+            <em>{connectionStatus ? "Connected!" : "Connecting..."}</em>
+          </Text>
+          {/* 
+                <Box display="flex" alignItems="center">
+                  <FormLabel
+                    htmlFor="dark-mode"
+                    fontSize="lg"
+                    fontWeight="bold"
+                    mb="0"
+                  >
+                    Dark Mode:
+                  </FormLabel>
+                  <Switch
+                    id="dark-mode"
+                    defaultChecked
+                    onChange={() => {
                       setDarkMode(!darkMode);
                     }}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  <span className="ml-3 text-sm font-medium">Toggle me</span>
-                </label>
-              </div>
-            </div>
+                </Box> */}
 
-            <div className="my-5">
-              <label className="mr-5 text-lg font-bold" htmlFor="language">
-                Language:
-              </label>
-              <select value={editorLanguage} onChange={(e)=>{
-                setEditorLanguage(e.target.value)
-                bindingRef.setLangId(e.target.value)
-                }} className="text-black">
-                {languages.map((value, i) => {
-                  return (
-                    <option key={i} value={value}>
-                      {value}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
+          <Stack spacing={2}>
+            <Text fontWeight="bold" fontSize="lg">
+              Language:
+            </Text>
+            <Select
+              size="sm"
+              value={editorLanguage}
+              bgColor={"#232323"}
+              onChange={(e) => {
+                setEditorLanguage(e.target.value);
+                bindingRef.current.setLangId(e.target.value);
+              }}
+            >
+              {languages.map((value, i) => {
+                return (
+                  <option key={i} value={value}>
+                    {value}
+                  </option>
+                );
+              })}
+            </Select>
+          </Stack>
 
-            <div className="my-5">
-              <h1 className="text-lg font-bold my-2">Share Link:</h1>
-              <div className="copy-link">
-                <input
-                  type="text"
-                  className="copy-link-input text-black"
-                  value={`https://pairprogram.me/#${shareUrl}`}
-                  readOnly
-                />
-                <button type="button" className="copy-link-button px-8">
-                  <span className="material-icons" onClick={copyShareUrl}>Copy</span>
-                </button>
-              </div>
-            </div>
+          <Text fontSize="lg" fontWeight="bold" mt={5} mb={2}>
+            Share Link:
+          </Text>
 
-            {/* <div className="mb-0">
+          <Flex mb={2}>
+            <Input
+              fontSize={"xs"}
+              px={2}
+              value={`https://shreyjoshi.com/pairprogram.me/#${shareUrl}`}
+              mr={2}
+            />
+            <Button color={"#232323"} bgColor={"#d3d3d3"} onClick={onCopy}>
+              {hasCopied ? "Copied!" : "Copy"}
+            </Button>
+          </Flex>
+          {/* <div className="mb-0">
               <h1 className="text-lg font-bold">Active Users:</h1>
             </div> */}
-          </div>
-        </div>
+        </Box>
+      </GridItem>
 
-        <div className="col-span-9 max-w-full">
-          <Editor
-            height="100vh"
-            width="100"
-            language={editorLanguage}
-            loading={loadingScreen}
-            theme={darkMode ? "vs-dark" : "light"}
-            onMount={handleEditorMount}
-            defaultValue="// Built with love by Shrey and Teerth"
-          />
-        </div>
-      </div>
-    </div>
+      <GridItem area={"main"} minWidth={100}>
+        <Editor
+          height="100vh"
+          width="100"
+          language={editorLanguage}
+          loading={loadingScreen}
+          theme={darkMode ? "vs-dark" : "light"}
+          onMount={handleEditorMount}
+          defaultValue="// Built with love by Shrey and Teerth"
+        />
+      </GridItem>
+    </Grid>
   );
 }
 
