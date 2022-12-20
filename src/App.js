@@ -39,7 +39,7 @@ function App() {
   const [editorLanguage, setEditorLanguage] =
     useRecoilState(editorLanguageAtom);
   const bindingRef = useRef(null);
-  const { onCopy, hasCopied } = useClipboard("https://shreyjoshi.com/pairprogram.me/#"+shareUrl);
+  const { onCopy, setValue, hasCopied } = useClipboard("https://shreyjoshi.com/pairprogram.me/#"+shareUrl);
 
   const loadingScreen = <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>Loading Editor...</Text>
 
@@ -97,6 +97,7 @@ function App() {
     } else {
       console.log("invalid so making new");
       setShareUrl(makeHash());
+      setValue(shareUrl)
     }
 
     window.addEventListener(
@@ -163,6 +164,7 @@ function App() {
               <Select
                 size="sm"
                 value={editorLanguage}
+                bgColor={"#232323"}
                 onChange={(e) => {
                   setEditorLanguage(e.target.value);
                   bindingRef.current.setLangId(e.target.value);
