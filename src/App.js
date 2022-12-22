@@ -70,7 +70,7 @@ function App() {
     doc.fetch(() => {
       if (doc.type === null)
         doc.create({
-          content: `// Share this URL to allow others to edit and see your changes in real-time:\n// https://shreyjoshi.com/pairprogram.me/#${docID}`,
+          content: `// Share this URL to allow others to edit and see your changes in real-time:\n// https://pairprogram.app/#${docID}`,
         });
     });
 
@@ -93,17 +93,24 @@ function App() {
   // this runs once at the beginning to ensure that hash exists in URL
   useEffect(() => {
     const hash = getHash();
+
+    // check to see if using the new pairprogram.app domain, if not redirect
+    if (window.location.href.includes("shreyjoshi.com"))
+    {
+      window.location.href = 'https://pairprogram.app/#'+hash?hash:"";
+    }
+
     // if hash in URL, set share URL and proceed normally. If not, add hash to url
     console.log("first hash is ", hash);
     if (hash) {
       setShareUrl(hash);
-      setValue("https://shreyjoshi.com/pairprogram.me/#"+hash);
+      setValue("https://pairprogram.app/#"+hash);
       console.log("hash valid, setting share URL");
     } else {
       console.log("invalid so making new");
       const newHash = makeHash();
       setShareUrl(newHash);
-      setValue("https://shreyjoshi.com/pairprogram.me/#"+newHash);
+      setValue("https://pairprogram.app/#"+newHash);
     }
 
     window.addEventListener(
@@ -196,7 +203,7 @@ function App() {
             <Input
               fontSize={"xs"}
               px={2}
-              value={`https://shreyjoshi.com/pairprogram.me/#${shareUrl}`}
+              value={`https://pairprogram.app/#${shareUrl}`}
               mr={2}
             />
             <Button color={"#232323"} bgColor={"#d3d3d3"} onClick={onCopy}>
