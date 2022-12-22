@@ -40,7 +40,7 @@ function App() {
   const bindingRef = useRef(null);
   const shareUrlClipboard = useClipboard("");
   const { onCopy, setValue, hasCopied } = useClipboard();
-  const baseUrl = 'https://shreyjoshi.com/pairprogram.me/#'
+  const baseUrl = 'https://shreyjoshi.com/pairprogram.app/#'
 
   const loadingScreen = (
     <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>
