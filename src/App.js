@@ -40,6 +40,7 @@ function App() {
   const bindingRef = useRef(null);
   const shareUrlClipboard = useClipboard("");
   const { onCopy, setValue, hasCopied } = useClipboard();
+  const baseUrl = 'https://shreyjoshi.com/pairprogram.me/#'
 
   const loadingScreen = (
     <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>
@@ -70,7 +71,7 @@ function App() {
     doc.fetch(() => {
       if (doc.type === null)
         doc.create({
-          content: `// Share this URL to allow others to edit and see your changes in real-time:\n// https://pairprogram.app/#${docID}`,
+          content: `// Share this URL to allow others to edit and see your changes in real-time:\n// ${baseUrl}${docID}`,
         });
     });
 
@@ -94,23 +95,17 @@ function App() {
   useEffect(() => {
     const hash = getHash();
 
-    // check to see if using the new pairprogram.app domain, if not redirect
-    if (window.location.href.includes("shreyjoshi.com"))
-    {
-      window.location.href = 'https://pairprogram.app/#'+hash?hash:"";
-    }
-
     // if hash in URL, set share URL and proceed normally. If not, add hash to url
     console.log("first hash is ", hash);
     if (hash) {
       setShareUrl(hash);
-      setValue("https://pairprogram.app/#"+hash);
+      setValue(baseUrl+hash);
       console.log("hash valid, setting share URL");
     } else {
       console.log("invalid so making new");
       const newHash = makeHash();
       setShareUrl(newHash);
-      setValue("https://pairprogram.app/#"+newHash);
+      setValue(baseUrl+newHash);
     }
 
     window.addEventListener(
@@ -203,7 +198,7 @@ function App() {
             <Input
               fontSize={"xs"}
               px={2}
-              value={`https://pairprogram.app/#${shareUrl}`}
+              value={`${baseUrl}${shareUrl}`}
               mr={2}
             />
             <Button color={"#232323"} bgColor={"#d3d3d3"} onClick={onCopy}>
