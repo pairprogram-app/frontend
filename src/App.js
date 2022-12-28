@@ -78,9 +78,23 @@ function App() {
     });
 
     socket.addEventListener('message', (event) => {
-      const data = event.data
-      // if got message for my name, use setMyName()
+      const data = JSON.parse(event.data)
 
+      if (data.username) {
+        setMyName(data.username)
+      } else if (data.names) {
+        if (data.joined) {
+          // notify client that {data.joined} joined
+        } else if (data.left) {
+          // notify client that {data.left} left
+        } else {
+          // throw error for debugging purposes
+        }
+
+        setUserList(data.names)
+      } else {
+        // message is malformed, so throw error
+      }
       // then update userlist with setUserList() to include new people
     })
 
