@@ -25,3 +25,13 @@ export const editorLanguageAtom = atom({
     key: 'editorLanguage',
     default: 'javascript'
 })
+
+export const userListAtom = atom({
+    key: 'userList',
+    default: []
+})
+
+export const myNameAtom = atom({
+    key: 'myName',
+    default: ""
+})

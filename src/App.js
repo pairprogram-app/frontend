@@ -1,12 +1,15 @@
 import "./App.css";
 import Editor from "@monaco-editor/react";
 import ShareDBMonaco from "sharedb-monaco";
+import { VscAccount } from "react-icons/vsc";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   connectionAtom,
   darkModeAtom,
   editorLanguageAtom,
+  myNameAtom,
   shareUrlAtom,
+  userListAtom,
 } from "./components/atoms";
 import { useEffect, useRef } from "react";
 import ReconnectingWebSocket from "reconnecting-websocket";
@@ -28,7 +31,13 @@ import {
   Button,
   Grid,
   GridItem,
+  List,
+  ListItem,
+  UnorderedList,
+  HStack,
+  Icon,
 } from "@chakra-ui/react";
+import {User} from "./components/User"
 
 function App() {
   const [darkMode, setDarkMode] = useRecoilState(darkModeAtom);
@@ -41,6 +50,8 @@ function App() {
   const shareUrlClipboard = useClipboard("");
   const { onCopy, setValue, hasCopied } = useClipboard();
   const baseUrl = 'https://shreyjoshi.com/pairprogram.app/#'
+  const [userList, setUserList] = useRecoilState(userListAtom)
+  const [myName, setMyName] = useRecoilState(myNameAtom)
 
   const loadingScreen = (
     <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>
@@ -48,7 +59,7 @@ function App() {
     </Text>
   );
 
-  const DEBUG = false;
+  const DEBUG = true;
 
   const file_path = "foo.js";
   const language_id = "javascript";
@@ -65,6 +76,13 @@ function App() {
     socket.addEventListener("open", (event) => {
       setConnectionStatus(true);
     });
+
+    socket.addEventListener('message', (event) => {
+      const data = event.data
+      // if got message for my name, use setMyName()
+
+      // then update userlist with setUserList() to include new people
+    })
 
     const docID = getHash();
     const doc = connection.get(docID, file_path);
@@ -200,14 +218,20 @@ function App() {
               px={2}
               value={`${baseUrl}${shareUrl}`}
               mr={2}
+              readOnly
             />
             <Button color={"#232323"} bgColor={"#d3d3d3"} onClick={onCopy}>
               {hasCopied ? "Copied!" : "Copy"}
             </Button>
           </Flex>
-          {/* <div className="mb-0">
-              <h1 className="text-lg font-bold">Active Users:</h1>
-            </div> */}
+          <Text fontSize={"lg"} fontWeight={"bold"} mt={5}>Active Users:</Text>
+            <List>
+              {userList.map((name, idx) => {
+                return (
+                  <ListItem key={idx}><User name={name} isMe={name===myName}></User></ListItem>
+                )
+              })}
+          </List>
         </Box>
       </GridItem>
 
@@ -219,7 +243,7 @@ function App() {
           loading={loadingScreen}
           theme={darkMode ? "vs-dark" : "light"}
           onMount={handleEditorMount}
-          defaultValue="// Built with love by Shrey and Teerth"
+          defaultValue=""
         />
       </GridItem>
     </Grid>
