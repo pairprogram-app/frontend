@@ -1,7 +1,7 @@
 {
-  "name": "pairprogram.me",
+  "name": "pairprogram.app",
   "version": "0.1.0",
-  "homepage": "https://shreyjoshi.com/pairprogram.me",
+  "homepage": "https://shreyjoshi.com/pairprogram.app",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.4.4",
