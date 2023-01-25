@@ -1,7 +1,7 @@
 {
   "name": "pairprogram.app",
   "version": "0.1.0",
-  "homepage": "https://pairprogram-app.github.io",
+  "homepage": "https://pairprogram.app",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.4.4",
