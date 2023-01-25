@@ -49,7 +49,7 @@ function App() {
   const bindingRef = useRef(null);
   const shareUrlClipboard = useClipboard("");
   const { onCopy, setValue, hasCopied } = useClipboard();
-  const baseUrl = "https://shreyjoshi.com/pairprogram.app/#";
+  const baseUrl = "https://pairprogram.app/#";
   const [userList, setUserList] = useRecoilState(userListAtom);
   const [myName, setMyName] = useRecoilState(myNameAtom);
 
