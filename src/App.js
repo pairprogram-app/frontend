@@ -37,7 +37,7 @@ import {
   HStack,
   Icon,
 } from "@chakra-ui/react";
-import {User} from "./components/User"
+import { User } from "./components/User";
 
 function App() {
   const [darkMode, setDarkMode] = useRecoilState(darkModeAtom);
@@ -49,9 +49,9 @@ function App() {
   const bindingRef = useRef(null);
   const shareUrlClipboard = useClipboard("");
   const { onCopy, setValue, hasCopied } = useClipboard();
-  const baseUrl = 'https://shreyjoshi.com/pairprogram.app/#'
-  const [userList, setUserList] = useRecoilState(userListAtom)
-  const [myName, setMyName] = useRecoilState(myNameAtom)
+  const baseUrl = "https://shreyjoshi.com/pairprogram.app/#";
+  const [userList, setUserList] = useRecoilState(userListAtom);
+  const [myName, setMyName] = useRecoilState(myNameAtom);
 
   const loadingScreen = (
     <Text h={"full"} w={"full"} bgColor={"#1e1e1e"} textColor={"white"}>
@@ -59,7 +59,7 @@ function App() {
     </Text>
   );
 
-  const DEBUG = true;
+  const DEBUG = false;
 
   const file_path = "foo.js";
   const language_id = "javascript";
@@ -77,18 +77,18 @@ function App() {
       setConnectionStatus(true);
     });
 
-    socket.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data)
+    socket.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
 
       if (data.username) {
-        setMyName(data.username)
+        setMyName(data.username);
       } else if (data.names) {
-        setUserList(data.names)
+        setUserList(data.names);
       } else {
         // message is malformed, so throw error
       }
       // then update userlist with setUserList() to include new people
-    })
+    });
 
     const docID = getHash();
     const doc = connection.get(docID, file_path);
@@ -123,13 +123,13 @@ function App() {
     console.log("first hash is ", hash);
     if (hash) {
       setShareUrl(hash);
-      setValue(baseUrl+hash);
+      setValue(baseUrl + hash);
       console.log("hash valid, setting share URL");
     } else {
       console.log("invalid so making new");
       const newHash = makeHash();
       setShareUrl(newHash);
-      setValue(baseUrl+newHash);
+      setValue(baseUrl + newHash);
     }
 
     window.addEventListener(
@@ -230,13 +230,17 @@ function App() {
               {hasCopied ? "Copied!" : "Copy"}
             </Button>
           </Flex>
-          <Text fontSize={"lg"} fontWeight={"bold"} mt={5}>Active Users:</Text>
-            <List>
-              {userList.map((name, idx) => {
-                return (
-                  <ListItem key={idx}><User name={name} isMe={name===myName}></User></ListItem>
-                )
-              })}
+          <Text fontSize={"lg"} fontWeight={"bold"} mt={5}>
+            Active Users:
+          </Text>
+          <List>
+            {userList.map((name, idx) => {
+              return (
+                <ListItem key={idx}>
+                  <User name={name} isMe={name === myName}></User>
+                </ListItem>
+              );
+            })}
           </List>
         </Box>
       </GridItem>
