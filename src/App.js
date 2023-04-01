@@ -1,6 +1,7 @@
 import "./App.css";
 import Editor from "@monaco-editor/react";
 import ShareDBMonaco from "sharedb-monaco";
+import DocManager from "./utils/docManager";
 import { VscAccount } from "react-icons/vsc";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -46,7 +47,7 @@ function App() {
   const [shareUrl, setShareUrl] = useRecoilState(shareUrlAtom);
   const [editorLanguage, setEditorLanguage] =
     useRecoilState(editorLanguageAtom);
-  const bindingRef = useRef(null);
+  const docManagerRef = useRef(null);
   const shareUrlClipboard = useClipboard("");
   const { onCopy, setValue, hasCopied } = useClipboard();
   const baseUrl = "https://pairprogram.app/#";
@@ -91,28 +92,13 @@ function App() {
     });
 
     const docID = getHash();
-    const doc = connection.get(docID, file_path);
-    doc.fetch(() => {
-      if (doc.type === null)
-        doc.create({
-          content: `// Share this URL to allow others to edit and see your changes in real-time:\n// ${baseUrl}${docID}`,
-        });
-    });
+    const docManager = new DocManager(editor, monaco, connection, docID); 
+    docManager.addDocGlobally("README.md",
+    `// Share this URL to allow others to edit and see your changes in real-time:\n// ${baseUrl}${docID}`)
+    .then(() => docManager.switchDoc("README.md"))
+    
+    docManagerRef.current = docManager;
 
-    const binding = new ShareDBMonaco({
-      id: file_path,
-      monaco: monaco,
-      sharePath: "content",
-      namespace: docID,
-      connection: connection,
-      loadingText: "Loading file...",
-    });
-
-    bindingRef.current = binding;
-
-    binding.add(editor, {
-      langId: language_id,
-    });
   };
 
   // this runs once at the beginning to ensure that hash exists in URL
