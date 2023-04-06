@@ -15,6 +15,11 @@ new Promise((resolve, reject) => {
     doc.fetch(errorHandler(resolve, reject))
 })
 
+const subscribeDoc = (doc) => 
+new Promise((resolve, reject) => {
+    doc.subscribe(errorHandler(resolve, reject))
+})
+
 const submitOp = (doc, op) =>
 new Promise((resolve, reject) => {
     doc.submitOp(op, {}, errorHandler(resolve, reject))
@@ -24,6 +29,7 @@ const deleteDoc = (doc) =>
 new Promise((resolve, reject) => {
     doc.del({}, errorHandler(resolve, reject))
 })
+
 
 export default 
 class DocManager {
@@ -39,18 +45,21 @@ class DocManager {
     }
 
     async initDocs() {
-        await fetchDoc(this.index_file); 
+        await subscribeDoc(this.index_file); 
         if (this.index_file.type === null) {
             await createDoc(this.index_file, { names: [] });
         }
-        const docnames = await this.getDocNames(); 
+        const docnames = this.getDocNames(); 
         const addactions = docnames.forEach(name => {
             this.addDocLocally(name); 
         })
+        
+        const intervalInSeconds = 1;
+        setInterval(() => this.syncDocList(), intervalInSeconds * 1000);
     }
 
-    async getDocNames() {
-
+    getDocNames() {
+        return this.index_file.data.names;
     }
 
     addDocLocally(filename) {
@@ -113,7 +122,7 @@ class DocManager {
     }
 
     async syncDocList() {
-        const docnames = await getListOfDocNames();
+        const docnames = getDocNames();
 
         const newnames = docnames.filter(name => bool(this.bindings[name]));
         const addactions = newnames.forEach(name => this.addDocLocally(name));
@@ -132,7 +141,7 @@ class DocManager {
             this.curBinding = this.bindings[filename];
             this.curBinding.add(this.editor);
         } else {
-            return new Error("Invalid filename");
+            throw new Error("Invalid filename");
         }
     }
 
