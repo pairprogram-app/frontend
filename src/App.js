@@ -92,13 +92,15 @@ function App() {
     });
 
     const docID = getHash();
-    const docManager = new DocManager(editor, monaco, connection, docID); 
-    docManager.addDocGlobally("README.md",
-    `// Share this URL to allow others to edit and see your changes in real-time:\n// ${baseUrl}${docID}`)
-    .then(() => docManager.switchDoc("README.md"))
-    
-    docManagerRef.current = docManager;
+    const docManager = new DocManager(editor, monaco, connection, docID);
+    docManager
+      .addDocGlobally(
+        "README.md",
+        `// Share this URL to allow others to edit and see your changes in real-time:\n// ${baseUrl}${docID}`
+      )
+      .then(() => docManager.switchDoc("README.md"));
 
+    docManagerRef.current = docManager;
   };
 
   // this runs once at the beginning to ensure that hash exists in URL
@@ -187,7 +189,7 @@ function App() {
               bgColor={"#232323"}
               onChange={(e) => {
                 setEditorLanguage(e.target.value);
-                bindingRef.current.setLangId(e.target.value);
+                docManagerRef.current.setLangId(e.target.value);
               }}
             >
               {languages.map((value, i) => {
